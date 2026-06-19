@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Leroy Home для дизайнеров</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+  <div class="app">
+
+    <section class="hero">
+      <div class="badge">Leroy Home × Дизайнерам</div>
+      <h1>Мебель по проектам дизайнеров в Красноярске</h1>
+      <p>
+        Производим корпусную и мягкую мебель под дизайн-проекты.
+        Помогаем дизайнерам реализовывать проекты красиво, качественно и в срок.
+      </p>
+      <a href="#form" class="button">Получить условия сотрудничества</a>
+    </section>
+
+    <section class="block">
+      <h2>О нас</h2>
+      <p>
+        Leroy Home — мебельная компания полного цикла. Мы работаем с дизайнерами,
+        архитектурами и студиями интерьера, берём на себя производство, техническую
+        проверку, подбор материалов и сопровождение проекта до монтажа.
+      </p>
+      <p>
+        Наша цель — построить долгосрочные партнёрские отношения, где дизайнеру
+        удобно передавать проекты, получать понятные условия и быть уверенным в результате.
+      </p>
+    </section>
+
+    <section class="block">
+      <h2>Преимущества работы с нами</h2>
+
+      <div class="card">
+        <h3>Собственное производство</h3>
+        <p>
+          Работаем со сложными индивидуальными проектами и несём ответственность
+          за качество реализации.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Сроки — это закон</h3>
+        <p>
+          Благодаря производственной системе и контролю этапов мы умеем делать проекты
+          в согласованные сроки.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Качество на каждом этапе</h3>
+        <p>
+          Используем проверенные материалы и фурнитуру, работаем с технологами,
+          сборщиками и монтажниками.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Понятные условия</h3>
+        <p>
+          Обсуждаем условия сотрудничества открыто: без скрытых сюрпризов в расчётах,
+          сроках и обязательствах.
+        </p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Наши спецпредложения</h2>
+
+      <div class="card special">
+        <h3>Бонус 15% от суммы проекта</h3>
+        <p>
+          Заполните форму, передайте проект на расчёт и получите специальное
+          партнёрское предложение для дизайнеров.
+        </p>
+        <a href="#form" class="button">Заполнить форму</a>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Реферальная программа</h2>
+
+      <div class="card special">
+        <h3>Приведи дизайнера — получи 30%</h3>
+        <p>
+          Рекомендуйте Leroy Home коллегам-дизайнерам и получайте 30% от его
+          партнёрских отчислений.
+        </p>
+      </div>
+    </section>
+
+<section class="block">
+  <h2>Наши реализованные проекты</h2>
+
+  <div class="card special">
+    <h3>Посмотрите наши работы</h3>
+    <p>
+      Кухни, гардеробные, шкафы и комплексные мебельные решения,
+      реализованные для частных и коммерческих объектов.
+    </p>
+
+    <a href="https://leroy-m.ru/turnkey2" target="_blank" class="button">
+      Смотреть проекты
+    </a>
+  </div>
+</section>
+
+    <section class="block" id="form">
+      <h2>Оставьте заявку</h2>
+      <p>
+        Заполните данные — мы свяжемся с вами и отправим подробные условия сотрудничества.
+      </p>
+
+      <form id="leadForm">
+        <input type="text" name="name" placeholder="ФИО" required />
+        <input type="text" name="studio" placeholder="Название студии / компании" />
+        <input type="tel" name="phone" placeholder="Телефон" required />
+        <input type="email" name="email" placeholder="Email" />
+
+        <select name="interest" required>
+          <option value="">Что вам интересно?</option>
+          <option value="Партнерская программа">Партнерская программа</option>
+          <option value="Расчет проекта">Расчет проекта</option>
+          <option value="Реферальная программа">Реферальная программа</option>
+          <option value="Хочу узнать условия">Хочу узнать условия</option>
+        </select>
+
+        <textarea name="comment" placeholder="Комментарий"></textarea>
+
+        <button type="submit">Отправить заявку</button>
+      </form>
+
+      <p id="result"></p>
+    </section>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

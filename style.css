@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111111;
+  color: #ffffff;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero {
+  padding: 36px 0 28px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 100px;
+  background: #2a2a2a;
+  color: #d6b06d;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: 32px;
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
+
+h2 {
+  font-size: 24px;
+  margin: 0 0 14px;
+}
+
+h3 {
+  margin: 14px 0 8px;
+}
+
+p,
+li {
+  color: #d6d6d6;
+  line-height: 1.5;
+}
+
+.block {
+  margin-top: 34px;
+}
+
+.button,
+button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-top: 18px;
+  border: none;
+  border-radius: 14px;
+  background: #d6b06d;
+  color: #111111;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+}
+
+.card {
+  background: #1c1c1c;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.image {
+  height: 150px;
+  border-radius: 14px;
+  background: #333333;
+  color: #aaaaaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid #333333;
+  background: #1c1c1c;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#result {
+  color: #d6b06d;
+  font-weight: bold;
+}
+.special {
+  border: 1px solid #d6b06d;
+}
