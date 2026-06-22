@@ -8,7 +8,7 @@ if (tg) {
 const form = document.getElementById("leadForm");
 const result = document.getElementById("result");
 
-const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/i6224h7mfvtyqfs8cwrn9jsudasxshmp";
+const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/00yo47nvzq0t69adlsheuoayys5l6or2";
 
 form.addEventListener("submit", async function (event) {
   event.preventDefault();
