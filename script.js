@@ -10,8 +10,6 @@ const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/msfug3g73pcl92u2o92fxouerbxs
 const form = document.getElementById("leadForm");
 const result = document.getElementById("result");
 
-const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/00yo47nvzq0t69adlsheuoayys5l6or2";
-
 form.addEventListener("submit", async function (event) {
   event.preventDefault();
 
@@ -19,22 +17,25 @@ form.addEventListener("submit", async function (event) {
 
   const formData = new FormData(form);
 
-  const lead = {
-    date: new Date().toLocaleString("ru-RU"),
-    page: document.title || "Leroy Home Mini App",
+  const user = tg?.initDataUnsafe?.user || {};
+
+  const payload = {
+    created_at: new Date().toLocaleString("ru-RU"),
+
+    source: "Telegram Mini App",
+    segment: "Дизайнеры",
 
     name: formData.get("name") || "",
-    studio: formData.get("studio") || "",
     company: formData.get("company") || "",
     phone: formData.get("phone") || "",
     email: formData.get("email") || "",
     interest: formData.get("interest") || "",
     comment: formData.get("comment") || "",
 
-    telegramUsername: tg?.initDataUnsafe?.user?.username || "",
-    telegramId: tg?.initDataUnsafe?.user?.id || "",
-
-    source: "telegram_mini_app"
+    telegram_id: user.id || "",
+    telegram_username: user.username || "",
+    telegram_first_name: user.first_name || "",
+    telegram_last_name: user.last_name || ""
   };
 
   try {
@@ -43,21 +44,26 @@ form.addEventListener("submit", async function (event) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(lead)
+      body: JSON.stringify(payload)
     });
 
-    if (response.ok) {
-      result.textContent = "Заявка отправлена. Мы скоро свяжемся с вами.";
-      form.reset();
-
-      if (tg) {
-        tg.HapticFeedback.notificationOccurred("success");
-      }
-    } else {
-      result.textContent = "Ошибка отправки. Попробуйте ещё раз.";
+    if (!response.ok) {
+      throw new Error("Ошибка отправки");
     }
+
+    result.textContent = "Заявка отправлена. Мы скоро свяжемся с вами.";
+    form.reset();
+
+    if (tg) {
+      tg.HapticFeedback.notificationOccurred("success");
+    }
+
   } catch (error) {
-    console.error("Ошибка отправки:", error);
-    result.textContent = "Ошибка соединения. Попробуйте позже.";
+    console.error(error);
+    result.textContent = "Ошибка отправки. Попробуйте ещё раз или напишите нам в Telegram.";
+
+    if (tg) {
+      tg.HapticFeedback.notificationOccurred("error");
+    }
   }
 });
