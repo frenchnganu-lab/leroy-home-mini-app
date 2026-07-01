@@ -5,6 +5,8 @@ if (tg) {
   tg.expand();
 }
 
+const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/msfug3g73pcl92u2o92fxouerbxstejh";
+
 const form = document.getElementById("leadForm");
 const result = document.getElementById("result");
 
