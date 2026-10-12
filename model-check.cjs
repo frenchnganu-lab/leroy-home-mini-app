@@ -1,0 +1,14 @@
+const fs=require('node:fs');const ts=require('typescript');const assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/lib/wardrobe.ts','utf8');const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const module0={exports:{}};new Function('require','module','exports',code)(require,module0,module0.exports);const m=module0.exports;
+const c={dims:[180,220,55],supportHeight:8,support:'Цоколь',guides:'Blum',niche:false,material:'ЛДСП Egger',decor:[],handles:'Без'};
+let root=m.split(m.empty(),'x',3);let g=m.geometry(root,c);assert.deepEqual(g.boxes.filter(b=>b.parent===root.id).map(b=>b.w),[579,579,578]);assert.equal(g.boxes[0].h,2088);
+const [left,center,right]=root.children;
+root=m.changeNode(root,left.id,n=>m.filled(n,'shelf',2));root=m.changeNode(root,right.id,n=>m.split(n,'y',2));const bottom=m.findNode(root,right.id).children[0];root=m.changeNode(root,bottom.id,n=>m.filled(n,'drawers',2));
+g=m.geometry(root,c);assert.equal(g.boxes.find(b=>b.id===bottom.id).h,1036);assert.deepEqual(m.totals(root),[2,0,2]);assert.equal(m.findNode(root,center.id).shelves.length,0);assert.equal(m.findNode(root,center.id).drawers.length,0);assert.deepEqual(g.errors,[]);
+const copy=JSON.parse(JSON.stringify(root));assert.equal(m.validateTree(copy),true);assert.equal(m.openingSchema.safeParse(copy).success,true);assert.deepEqual(m.geometry(copy,c).parts,g.parts);
+const resized=m.geometry(root,{...c,dims:[200,220,55]});assert.equal(resized.boxes.find(b=>b.id===bottom.id).id,bottom.id);assert.equal(m.findNode(root,left.id).shelves.length,2);
+const bad=m.changeNode(root,bottom.id,n=>({...n,drawers:n.drawers.map((d,i)=>({...d,ratio:i===0?.99:.01}))}));assert.ok(m.geometry(bad,c).errors.some(x=>x.includes('ящик')));
+const overlap=m.changeNode(root,left.id,n=>({...n,shelves:n.shelves.map(s=>({...s,at:.5}))}));assert.ok(m.geometry(overlap,c).errors.some(x=>x.includes('полки')));
+const door=m.leafFront(root,center.id,1);assert.equal(m.totals(door)[1],1);assert.deepEqual(m.totals(m.rootFront(door,3)),[2,3,2]);
+console.log('PASS: section widths, nested split, local filling, resize, persistence, collision rejection, independent facades');
