@@ -8,7 +8,7 @@ export function useWardrobe(c:Config,setC:React.Dispatch<React.SetStateAction<Co
  const root=history[index];const current=useRef({root,c});current.current={root,c};
  useEffect(()=>{try{const data=JSON.parse(localStorage.getItem('leroy-wardrobe-v1')??'null');if(data){const tree=openingSchema.safeParse(data.root),config=configSchema.safeParse(data.config);if(tree.success&&config.success&&validateTree(tree.data)&&!geometry(tree.data,config.data).errors.length){setHistory([tree.data]);setC(config.data);}}}catch{}setLoaded(true);},[]);
  useEffect(()=>{if(!loaded)return;try{localStorage.setItem('leroy-wardrobe-v1',JSON.stringify({version:1,root,config:c}));}catch{}},[root,c,loaded]);
- useEffect(()=>{if(c.cat!==1)return;const counts=totals(root);setC(old=>old.counts.every((n,i)=>n===counts[i])?old:{...old,counts});},[root,c.cat,setC]);
+ useEffect(()=>{if(c.cat!==1)return;const counts=totals(root);setC(old=>old.counts.every((n,i)=>n===counts[i])?old:{...old,counts});},[root,c.cat,c.counts,setC]);
  const commit=(next:Opening)=>{const errors=geometry(next,c).errors;if(!validateTree(next)||errors.length){setNotice(errors[0]??'Недопустимая конструкция');return false;}setHistory(old=>[...old.slice(0,index+1).slice(-40),next]);setIndex(Math.min(index+1,40));setNotice('');return true;};
  const check=(next:Config)=>{const error=geometry(root,next).errors[0];if(error){setNotice(error);return false;}setNotice('');return true;};
  const countChange=(which:number,delta:number)=>{if(which===1){const next=Math.min(6,Math.max(0,totals(root)[1]+delta));commit(rootFront(root,next));return;}
