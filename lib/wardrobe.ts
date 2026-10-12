@@ -13,12 +13,7 @@ export function filled(node:Opening,kind:'fixed'|'shelf'|'drawers',count:number)
  return {...node,shelves:kind==='drawers'?[]:Array.from({length:count},(_,i)=>({id:uid(),at:(i+1)/(count+1),fixed:kind==='fixed'})),drawers:kind==='drawers'?Array.from({length:count},()=>({id:uid(),ratio:1/count})):[]};
 }
 export function split(node:Opening,axis:'x'|'y',count:number):Opening{return {...node,axis,children:Array.from({length:count},empty),shelves:[],drawers:[]};}
-export function createWardrobe():Opening{
- let root=split(empty(),'x',3);root.doors=3;
- root.children![0]=filled(root.children![0],'shelf',2);
- root.children![1]=filled(root.children![1],'shelf',3);
- root.children![2]=filled(root.children![2],'drawers',2);let serial=1;const stable=(n:Opening)=>{n.id='10000000-0000-4000-8000-'+String(serial++).padStart(12,'0');for(const v of [...n.shelves,...n.drawers])v.id='10000000-0000-4000-8000-'+String(serial++).padStart(12,'0');n.children?.forEach(stable);};stable(root);return root;
-}
+export function createWardrobe():Opening{return {id:'10000000-0000-4000-8000-000000000001',shelves:[],drawers:[],doors:0};}
 export function findNode(root:Opening,id:string):Opening|undefined{return root.id===id?root:root.children?.map(n=>findNode(n,id)).find(Boolean);}
 export function changeNode(root:Opening,id:string,fn:(n:Opening)=>Opening):Opening{return root.id===id?fn(root):{...root,children:root.children?.map(n=>changeNode(n,id,fn))};}
 export function totals(root:Opening):[number,number,number]{return (root.children??[]).reduce<[number,number,number]>((a,n)=>{const b=totals(n);return a.map((v,i)=>v+b[i]) as [number,number,number];},[root.shelves.length,root.doors,root.drawers.length]);}
