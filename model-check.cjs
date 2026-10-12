@@ -11,4 +11,5 @@ const resized=m.geometry(root,{...c,dims:[200,220,55]});assert.equal(resized.box
 const bad=m.changeNode(root,bottom.id,n=>({...n,drawers:n.drawers.map((d,i)=>({...d,ratio:i===0?.99:.01}))}));assert.ok(m.geometry(bad,c).errors.some(x=>x.includes('ящик')));
 const overlap=m.changeNode(root,left.id,n=>({...n,shelves:n.shelves.map(s=>({...s,at:.5}))}));assert.ok(m.geometry(overlap,c).errors.some(x=>x.includes('полки')));
 const door=m.leafFront(root,center.id,1);assert.equal(m.totals(door)[1],1);assert.deepEqual(m.totals(m.rootFront(door,3)),[2,3,2]);
-console.log('PASS: section widths, nested split, local filling, resize, persistence, collision rejection, independent facades');
+const cleared=m.clearFilling(m.rootFront(root,3));assert.deepEqual(m.totals(cleared),[0,3,0]);assert.equal(m.findNode(cleared,bottom.id).id,bottom.id);assert.equal(m.findNode(cleared,right.id).children.length,2);assert.equal(m.validateTree(cleared),true);assert.deepEqual(m.geometry(cleared,c).errors,[]);
+console.log('PASS: recursive clearing, section widths, nested split, local filling, resize, persistence, collision rejection, independent facades');

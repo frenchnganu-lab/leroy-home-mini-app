@@ -8,6 +8,7 @@ export type Part={id:string;kind:'body'|'shelf'|'drawer'|'door'|'support'|'decor
 export const thickness=16;
 const uid=()=>crypto.randomUUID();
 export const empty=():Opening=>({id:uid(),shelves:[],drawers:[],doors:0});
+export const clearFilling=(node:Opening):Opening=>({...node,shelves:[],drawers:[],children:node.children?.map(clearFilling)});
 export function filled(node:Opening,kind:'fixed'|'shelf'|'drawers',count:number):Opening{
  return {...node,shelves:kind==='drawers'?[]:Array.from({length:count},(_,i)=>({id:uid(),at:(i+1)/(count+1),fixed:kind==='fixed'})),drawers:kind==='drawers'?Array.from({length:count},()=>({id:uid(),ratio:1/count})):[]};
 }
