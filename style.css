@@ -45,7 +45,7 @@
 .we-hint{font-size:12px;text-align:center;padding:10px;color:#756a5d;border-top:1px solid #ddd4c8;min-height:39px}
 .we-side{min-width:0;max-height:calc(clamp(500px,62vh,680px) + 40px);overflow:auto;scrollbar-width:thin;padding-right:2px}
 .we-select-label{display:block;font-size:12px;color:#75695b}
-.wardrobe-editor select,.wardrobe-editor input[type=number]{font:inherit;font-size:14px;border:1px solid #cbbfaf;border-radius:0;background:#fff;color:#40372d;min-height:44px;padding:9px;max-width:100%}
+.wardrobe-editor select,.wardrobe-editor input[type=number],.wardrobe-editor .we-count-input{font:inherit;font-size:14px;border:1px solid #cbbfaf;border-radius:0;background:#fff;color:#40372d;min-height:44px;padding:9px;max-width:100%}
 .we-select-label select{display:block;width:100%;margin-top:7px}
 .we-inspector{margin-top:12px;padding:16px;background:#fff;border:1px solid #c5b49f;box-shadow:0 5px 18px #5d483611}
 .we-inspector-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -60,7 +60,7 @@
 .we-actions button{flex:1;padding:10px 7px;font-size:13px}
 .we-subsection{margin-top:16px;padding-top:16px;border-top:1px solid #e8ded2}
 .we-subsection>label,.we-replace{display:block;margin-top:12px;font-size:13px;line-height:1.65}
-.we-subsection>label>input[type=number],.we-subsection>label>select{width:100%;display:block;margin-top:7px}
+.we-subsection>label>input[type=number],.we-subsection>label>.we-count-input,.we-subsection>label>select{width:100%;display:block;margin-top:7px}
 .we-subsection p{font-size:12px;line-height:1.65;color:#786c5e;margin:10px 0}
 .wardrobe-editor .we-apply,.we-secondary{width:100%;margin-top:14px}
 .we-inspector input[type=checkbox]{margin:0 7px 0 0;vertical-align:middle;width:17px;height:17px;accent-color:#292826}

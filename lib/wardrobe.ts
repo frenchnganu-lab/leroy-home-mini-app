@@ -8,7 +8,8 @@ export type Facade={type:'single'|'double'|'lift'|'drop'|'sliding'|'multi';direc
 export type Opening={id:string;axis?:'x'|'y';children?:Opening[];shelves:Shelf[];drawers:Drawer[];doors:number;front?:Facade;guides?:'Деревянные'|'Blum';handles?:typeof handleChoices[number]};
 export type Box={id:string;node:Opening;x:number;y:number;w:number;h:number;d:number;label:string;parent?:string};
 export type Pivot={x:number;y:number;z:number;axis:'x'|'y';angle:number};
-export type Part={id:string;kind:'body'|'shelf'|'drawer'|'door'|'support'|'decor'|'handle';x:number;y:number;z:number;w:number;h:number;d:number;opening?:string;pivot?:Pivot;finish?:Facade};
+export type Motion={id:string;kind:'door'|'drawer'|'sliding';axis:'x'|'y'|'z';amount:number};
+export type Part={id:string;kind:'body'|'shelf'|'drawer'|'door'|'support'|'decor'|'handle';x:number;y:number;z:number;w:number;h:number;d:number;opening?:string;pivot?:Pivot;finish?:Facade;motion?:Motion};
 export const thickness=16;
 const uid=()=>crypto.randomUUID();
 export const empty=():Opening=>({id:uid(),shelves:[],drawers:[],doors:0});
@@ -16,7 +17,7 @@ export const clearFilling=(node:Opening):Opening=>({...node,shelves:[],drawers:[
 export function filled(node:Opening,kind:'fixed'|'shelf'|'drawers',count:number):Opening{
  return {...node,shelves:kind==='drawers'?[]:Array.from({length:count},(_,i)=>({id:uid(),at:(i+1)/(count+1),fixed:kind==='fixed'})),drawers:kind==='drawers'?Array.from({length:count},()=>({id:uid(),ratio:1/count})):[]};
 }
-export function split(node:Opening,axis:'x'|'y',count:number):Opening{return {...node,axis,children:Array.from({length:count},empty),shelves:[],drawers:[]};}
+export function split(node:Opening,axis:'x'|'y',count:number):Opening{return {...node,axis:count>1?axis:undefined,children:count>1?Array.from({length:count},empty):undefined,shelves:[],drawers:[]};}
 export function createWardrobe():Opening{return {id:'10000000-0000-4000-8000-000000000001',shelves:[],drawers:[],doors:0};}
 export function findNode(root:Opening,id:string):Opening|undefined{return root.id===id?root:root.children?.map(n=>findNode(n,id)).find(Boolean);}
 export function changeNode(root:Opening,id:string,fn:(n:Opening)=>Opening):Opening{return root.id===id?fn(root):{...root,children:root.children?.map(n=>changeNode(n,id,fn))};}
@@ -70,7 +71,7 @@ export function geometry(root:Opening,c:Config):{boxes:Box[];parts:Part[];errors
   if(heights.some((v,i)=>v-t/2<(i?heights[i-1]+t/2:0)+60)||heights.length&&h-heights[heights.length-1]-t/2<60)errors.push(label+': полки расположены слишком близко');
   node.shelves.forEach(s=>part(s.id,'shelf',x+w/2,y+s.at*h,D/2,w,t,depth-8,node.id));
   let bottom=y;
-  node.drawers.forEach(dr=>{const dh=h*dr.ratio;
+  node.drawers.forEach(dr=>{const dh=h*dr.ratio,start=parts.length;
    if(dh<100)errors.push(label+': ящик ниже 100 мм');
    const clearance=(node.guides??c.guides)==='Blum'?13:10,iw=w-2*clearance,id=depth-35;
    part(dr.id,'drawer',x+w/2,bottom+dh/2,D-5,w-6,dh-4,16,node.id);
@@ -79,16 +80,18 @@ export function geometry(root:Opening,c:Config):{boxes:Box[];parts:Part[];errors
    part(dr.id+'-b','drawer',x+w/2,bottom+16,D/2,iw,6,id,node.id);
    part(dr.id+'-rear','drawer',x+w/2,bottom+dh*.4,25,iw,Math.max(20,dh*.65),t,node.id);
    const handle=node.handles??c.handles;if(handle!=='Без')part(dr.id+'-handle','handle',x+w/2,bottom+dh*.75,D+10,handle==='Кнопки'?14:70,8,12,node.id);
+   parts.slice(start).forEach(p=>{p.motion={id:dr.id,kind:'drawer',axis:'z',amount:Math.min(300,depth*.65)};});
    bottom+=dh;
   });
   const doors=node.doors,finish=facadeOf(node,c);
-  for(let i=0;i<doors&&finish;i++){const dw=w/doors,fx=x+i*dw+3,fw=dw-6,fy=y+3,fh=h-6;
+  for(let i=0;i<doors&&finish;i++){const dw=w/doors,fx=x+i*dw+3,fw=dw-6,fy=y+3,fh=h-6,start=parts.length;
    const direction=i===1&&finish.type==='double'?(finish.secondDirection??'right'):finish.direction;
    const horizontal=finish.type==='lift'||finish.type==='drop';
    const pivot:Pivot={x:horizontal?fx+fw/2:direction==='right'?fx+fw:fx,y:horizontal?(finish.type==='lift'?fy+fh:fy):fy+fh/2,z:D+9,axis:horizontal?'x':'y',angle:(horizontal?finish.type==='lift'?-1:1:direction==='right'?1:-1)*Math.PI*.47};
    if(fw<90||fh<70)errors.push(label+': фасад слишком мал');
    part(node.id+'-door-'+i,'door',fx+fw/2,fy+fh/2,D+9+(finish.type==='sliding'?i%2*22:0),fw,fh,16,node.id,finish.type==='sliding'?undefined:pivot,finish);
    if(finish.handles!=='Без')part(node.id+'-dh-'+i,'handle',horizontal?fx+fw/2:direction==='right'?fx+22:fx+fw-22,horizontal?(finish.type==='lift'?fy+22:fy+fh-22):fy+fh/2,D+25,horizontal?finish.handles==='Кнопки'?14:80:finish.handles==='Кнопки'?14:8,horizontal?8:finish.handles==='Кнопки'?14:80,12,node.id,finish.type==='sliding'?undefined:pivot,finish);
+   parts.slice(start).forEach(p=>{p.motion={id:node.id+'-door-'+i,kind:finish.type==='sliding'?'sliding':'door',axis:finish.type==='sliding'?'x':pivot.axis,amount:finish.type==='sliding'?dw*.72*(i%2?-1:1):pivot.angle};});
   }
  }
  walk(root,t,base+t,W-2*t,H-base-2*t,'Весь шкаф');
