@@ -2,9 +2,9 @@
 import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {geometry,type Opening} from '../lib/wardrobe';
+import {geometry,coveredByFront,type Opening} from '../lib/wardrobe';
 import type {Config} from '../lib/configurator';
-type Props={root:Opening;c:Config;selected:string;layer:string;opened:boolean;reset:number;assetBase:string;onSelect:(id:string)=>void;onDoor:()=>void;onFail:()=>void};
+type Props={root:Opening;c:Config;selected:string;layer:string;opened:boolean;reset:number;assetBase:string;onSelect:(id:string)=>void;onFail:()=>void};
 export default function WardrobeScene(p:Props){
  const host=useRef<HTMLDivElement>(null),latest=useRef(p);latest.current=p;
  const runtime=useRef<{scene:THREE.Scene;group:THREE.Group;camera:THREE.PerspectiveCamera;renderer:THREE.WebGLRenderer;controls:OrbitControls;size:string;fit:()=>void}|null>(null);
@@ -23,7 +23,7 @@ export default function WardrobeScene(p:Props){
   const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();let down:{x:number;y:number}|null=null;const pointers=new Set<number>();let multitouch=false;
   const hit=(e:PointerEvent)=>{const rect=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);return ray.intersectObjects(group.children,true).find(h=>h.object.userData.opening);};
   const start=(e:PointerEvent)=>{pointers.add(e.pointerId);if(pointers.size>1)multitouch=true;down={x:e.clientX,y:e.clientY};};
-  const finish=(e:PointerEvent)=>{pointers.delete(e.pointerId);if(down&&!multitouch&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6){const h=hit(e);if(h){if(latest.current.layer==='facades')latest.current.onDoor();latest.current.onSelect(h.object.userData.opening);}}if(!pointers.size){down=null;multitouch=false;}};
+  const finish=(e:PointerEvent)=>{pointers.delete(e.pointerId);if(e.type!=='pointercancel'&&down&&!multitouch&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<6){const h=hit(e);if(h)latest.current.onSelect(h.object.userData.opening);}if(!pointers.size){down=null;multitouch=false;}};
   const hover=(e:PointerEvent)=>{if(!down)renderer.domElement.style.cursor=hit(e)?'pointer':'grab';};
   const lost=(e:Event)=>{e.preventDefault();latest.current.onFail();};
   renderer.domElement.addEventListener('pointerdown',start);renderer.domElement.addEventListener('pointerup',finish);renderer.domElement.addEventListener('pointermove',hover);renderer.domElement.addEventListener('pointercancel',finish);renderer.domElement.addEventListener('webglcontextlost',lost);
@@ -33,15 +33,16 @@ export default function WardrobeScene(p:Props){
  useEffect(()=>{const rt=runtime.current;if(!rt)return;const {group}=rt;group.children.forEach(o=>o.traverse(n=>{if(n instanceof THREE.Mesh||n instanceof THREE.LineSegments){n.geometry.dispose();const ms=Array.isArray(n.material)?n.material:[n.material];ms.forEach(m=>{if(m instanceof THREE.MeshStandardMaterial)m.map?.dispose();m.dispose();});}}));group.clear();
   const g=geometry(p.root,p.c),loader=new THREE.TextureLoader();const colors=['#a28b74','#c6ab80','#cfbea0','#cfa883'];
   for(const part of g.parts){if((part.kind==='door'||part.kind==='handle'&&part.id.includes('-dh-'))&&p.layer!=='facades')continue;
-   const tex=part.kind==='handle'?undefined:loader.load(p.assetBase+'wood-'+p.c.wood+'.webp');if(tex){tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(Math.max(.3,part.w/650),Math.max(.3,part.h/900));}
-   const material=new THREE.MeshStandardMaterial({color:part.kind==='handle'?'#484138':colors[p.c.wood],map:tex,roughness:part.kind==='handle'?.4:.8,metalness:part.kind==='handle'?.55:0});
+   const wood=part.finish?.wood??p.c.wood;
+   const tex=part.kind==='handle'?undefined:loader.load(p.assetBase+'wood-'+wood+'.webp');if(tex){tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(Math.max(.3,part.w/650),Math.max(.3,part.h/900));}
+   const material=new THREE.MeshStandardMaterial({color:part.kind==='handle'?'#484138':colors[wood],map:tex,roughness:part.kind==='handle'?.4:.8,metalness:part.kind==='handle'?.55:0});
    const mesh=new THREE.Mesh(new THREE.BoxGeometry(part.w,part.h,part.d),material);mesh.position.set(part.x-g.W/2,part.y,part.z-g.D/2);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.opening=part.opening;
    const doorpart=part.kind==='door'||part.kind==='handle'&&part.id.includes('-dh-');
-   if(doorpart&&part.hinge!==undefined&&p.opened&&p.c.configuration!=='Купе'){const hinge=new THREE.Group();hinge.position.set(part.hinge-g.W/2,part.y,g.D/2+9);mesh.position.set(part.x-part.hinge,0,part.z-g.D-9);hinge.add(mesh);hinge.rotation.y=-Math.PI*.47;group.add(hinge);}else group.add(mesh);
-   if(part.kind==='door'&&p.c.configuration==='Купе')mesh.position.z+=(Number(part.id.slice(-1))%2)*22;
-   if(part.kind==='door'&&['МДФ в пленке с фрезеровкой','МДФ Эмаль','Шпон'].includes(p.c.material)&&p.c.decor.includes('Филёнчатые фасады')){const trim=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(Math.max(10,part.w-65),Math.max(10,part.h-80),3)),new THREE.LineBasicMaterial({color:'#735a42'}));trim.position.set(0,0,part.d/2+2);mesh.add(trim);}
+   if(doorpart&&part.pivot&&p.opened){const pivot=part.pivot,hinge=new THREE.Group();hinge.position.set(pivot.x-g.W/2,pivot.y,pivot.z-g.D/2);mesh.position.set(part.x-pivot.x,part.y-pivot.y,part.z-pivot.z);hinge.add(mesh);hinge.rotation[pivot.axis]=pivot.angle;group.add(hinge);}else group.add(mesh);
+   if(part.kind==='door'&&part.finish?.panel){const trim=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(Math.max(10,part.w-65),Math.max(10,part.h-80),3)),new THREE.LineBasicMaterial({color:'#735a42'}));trim.position.set(0,0,part.d/2+2);mesh.add(trim);}
+   if(part.kind==='door'&&part.opening===p.selected){mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry),new THREE.LineBasicMaterial({color:'#aa6f36'})));}
   }
-  if(p.layer==='filling')for(const b of g.boxes.filter(b=>!b.node.children?.length)){
+  for(const b of g.boxes.filter(b=>!b.node.children?.length&&(p.layer==='filling'||!b.node.doors&&!coveredByFront(p.root,b.id)))){
    const material=new THREE.MeshBasicMaterial({color:'#998571',transparent:true,opacity:p.selected===b.id ? .15 : .018,depthWrite:false,side:THREE.DoubleSide});const plane=new THREE.Mesh(new THREE.PlaneGeometry(b.w-3,b.h-3),material);plane.position.set(b.x+b.w/2-g.W/2,b.y+b.h/2,g.D/2+22);plane.userData.opening=b.id;group.add(plane);
    if(p.selected===b.id){const edges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(b.w,b.h,1)),new THREE.LineBasicMaterial({color:'#756049'}));edges.position.copy(plane.position);group.add(edges);}
   }
